@@ -1,0 +1,5 @@
+{
+  "name": "RPGemini",
+  "description": "An interactive storytelling and role-playing game application powered by the Gemini API, allowing users to configure generation parameters and monitor estimated token usage.",
+  "requestFramePermissions": []
+}

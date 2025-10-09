@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2a1d12" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>RPGemini</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --color-parchment: #e9e2c7;
+        --color-parchment-dark: #d8cbad;
+        --color-wood-dark: #2a1d12;
+        --color-wood-light: #4b3b2d;
+        --color-gold: #d4af37;
+        --color-gold-dark: #b1880b;
+        --color-text-light: #e8e6e3;
+        --color-text-dark: #3d3a37;
+        --color-text-header: #c8b38a;
+        --color-red-deep: #6a0e0e;
+        --color-blue-deep: #2a3a5e;
+      }
+
+      html {
+        background-color: var(--color-wood-dark);
+        background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+      }
+
+      body {
+        font-family: 'Merriweather', serif;
+        color: var(--color-text-light);
+        overflow: hidden;
+      }
+
+      #root {
+        position: relative;
+        z-index: 1;
+      }
+
+      .ember-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+      }
+
+      .font-medieval {
+        font-family: 'Cinzel', serif;
+      }
+      
+      .custom-scrollbar {
+        scrollbar-width: none; /* For Firefox */
+        -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        display: none; /* For Chrome, Safari, and Opera */
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: var(--color-wood-light);
+        border-radius: 4px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      .custom-scrollbar:hover::-webkit-scrollbar {
+        display: block;
+        width: 12px;
+      }
+
+      .panel-border {
+        background-color: var(--color-parchment);
+        background-image: url('https://www.transparenttextures.com/patterns/old-parchment.png');
+        color: var(--color-text-dark);
+        border: 1px solid #00000030;
+        border-top-color: #ffffff30;
+        box-shadow: 
+          inset 0 0 15px rgba(0,0,0,0.4), /* Inner shadow */
+          0 4px 15px rgba(0,0,0,0.5); /* Outer shadow for depth */
+        border-radius: 4px;
+      }
+      .panel-border-inset {
+         background-color: #00000020;
+         box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+         border-radius: 8px;
+         border: 1px solid #00000060;
+      }
+      
+      /* Styling for range inputs in settings */
+      input[type="range"].themed-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        background: var(--color-wood-dark);
+        border-radius: 5px;
+        outline: none;
+        opacity: 0.7;
+        transition: opacity .2s;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        border: 1px solid #000;
+      }
+      input[type="range"].themed-slider:hover {
+        opacity: 1;
+      }
+      input[type="range"].themed-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--color-gold);
+        border: 2px solid var(--color-wood-dark);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
+      }
+       input[type="range"].themed-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--color-gold);
+        border: 2px solid var(--color-wood-dark);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .health-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, #b91c1c, #ef4444);
+        transition: width 0.5s ease-in-out;
+        box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.3), 0 0 5px #ef4444;
+      }
+
+      @keyframes combat-action-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        50% { transform: scale(1.03); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+      }
+      .combat-action-button:not(:disabled) {
+        animation: combat-action-pulse 2.5s ease-in-out infinite;
+      }
+
+      @keyframes float-up-and-fade {
+        from {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-60px) scale(1.2);
+        }
+      }
+      .animate-combat-effect {
+        animation: float-up-and-fade 2s ease-out forwards;
+      }
+
+      @keyframes spin-slow {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 5s linear infinite;
+      }
+
+      @keyframes dice-roll {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(15deg) scale(1.1); }
+        50% { transform: rotate(-15deg) scale(1.1); }
+        75% { transform: rotate(15deg) scale(1.1); }
+        100% { transform: rotate(0deg) scale(1); }
+      }
+      .animate-dice-roll {
+        animation: dice-roll 0.5s ease-in-out infinite;
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.5s ease-out forwards;
+      }
+
+      @keyframes slide-up {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slide-up {
+        animation: slide-up 0.5s ease-out forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <canvas class="ember-canvas" id="ember-canvas"></canvas>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      // Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('SW registered: ', registration);
+          }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+        });
+      }
+
+      // Ember animation script
+      const canvas = document.getElementById('ember-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+      const particleCount = 50;
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: Math.random() * 0.5 - 0.25,
+          vy: Math.random() * -1 - 0.5,
+          radius: Math.random() * 2 + 1,
+          opacity: Math.random() * 0.5 + 0.2
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255, 184, 28, ${p.opacity})`;
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.y < -10) {
+            p.y = canvas.height + 10;
+            p.x = Math.random() * canvas.width;
+          }
+          if (p.x < -10 || p.x > canvas.width + 10) {
+            p.x = Math.random() * canvas.width;
+          }
+        });
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+      window.addEventListener('resize', () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
+</html>
